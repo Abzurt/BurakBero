@@ -48,6 +48,115 @@ const CompactCountdown = () => {
   );
 };
 
+// New Section Component
+const RSVPSection = ({ 
+  hasResponded, 
+  onRSVPSubmit, 
+  isSubmitting,
+  initialAttendance = "coming",
+  initialCount = 1
+}: { 
+  hasResponded: boolean;
+  onRSVPSubmit: (attendance: string, count: number) => Promise<void>;
+  isSubmitting: boolean;
+  initialAttendance?: string;
+  initialCount?: number;
+}) => {
+  const [isEditing, setIsEditing] = useState(!hasResponded);
+  const [attendance, setAttendance] = useState(initialAttendance);
+  const [guestCount, setGuestCount] = useState(initialCount);
+
+  // Sync state if initial values change
+  useEffect(() => {
+    if (!isEditing) {
+      setAttendance(initialAttendance);
+      setGuestCount(initialCount);
+    }
+  }, [initialAttendance, initialCount, isEditing]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onRSVPSubmit(attendance, guestCount);
+    setIsEditing(false);
+  };
+
+  return (
+    <section className="py-16 px-6 bg-surface-container-lowest" id="rsvp-status">
+      <div className="max-w-2xl mx-auto glass p-8 md:p-12 rounded-[2.5rem] shadow-xl border border-primary/5">
+        <div className="text-center mb-10">
+          <h2 className="font-headline text-3xl mb-3 text-on-background">Katılım Durumu</h2>
+          <div className="h-[1px] w-8 bg-primary/20 mx-auto mb-4"></div>
+          {!isEditing ? (
+            <div className="flex flex-col items-center animate-fade-in">
+              <div className={`px-6 py-2 rounded-full font-label text-[10px] uppercase tracking-widest mb-4 ${
+                attendance === "coming" ? "bg-primary/10 text-primary border border-primary/20" : "bg-on-surface-variant/5 text-on-surface-variant border border-outline-variant/10"
+              }`}>
+                {attendance === "coming" ? "Geliyorum" : "Gelemiyorum"} • {guestCount} Kişi
+              </div>
+              <p className="font-body text-on-surface-variant mb-6 italic text-sm">Cevabınız kaydedildi. Değişiklik yapmak isterseniz güncelleyebilirsiniz.</p>
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="text-primary font-label text-[10px] uppercase tracking-[0.2em] font-bold hover:gap-3 transition-all flex items-center gap-2"
+              >
+                Cevabı Güncelle <span className="material-symbols-outlined text-sm">edit</span>
+              </button>
+            </div>
+          ) : (
+            <p className="font-body text-sm text-on-surface-variant">Düğünümüze katılım durumunuzu buradan bildirebilir veya güncelleyebilirsiniz.</p>
+          )}
+        </div>
+
+        {isEditing && (
+          <form className="space-y-8 animate-fade-in" onSubmit={handleSubmit}>
+            <div className="flex gap-4">
+              <label className="flex-1 cursor-pointer group">
+                <input type="radio" name="section-attendance" value="coming" className="hidden peer" checked={attendance === "coming"} onChange={() => setAttendance("coming")} />
+                <div className="text-center p-5 rounded-2xl border border-outline-variant/20 peer-checked:bg-primary-container peer-checked:border-primary transition-all duration-300 glass hover:bg-white/40">
+                  <span className="font-label text-[10px] uppercase tracking-widest">Geliyorum</span>
+                </div>
+              </label>
+              <label className="flex-1 cursor-pointer group">
+                <input type="radio" name="section-attendance" value="not-coming" className="hidden peer" checked={attendance === "not-coming"} onChange={() => setAttendance("not-coming")} />
+                <div className="text-center p-5 rounded-2xl border border-outline-variant/20 peer-checked:bg-surface-container-low transition-all duration-300 glass hover:bg-white/40">
+                  <span className="font-label text-[10px] uppercase tracking-widest">Gelemiyorum</span>
+                </div>
+              </label>
+            </div>
+            
+            <div className="space-y-3">
+              <label className="font-label text-[10px] uppercase tracking-widest text-outline-variant ml-1">Kişi Sayısı</label>
+              <div className="flex items-center justify-between glass py-2 px-2 rounded-full border border-outline-variant/10 max-w-[240px] mx-auto">
+                <button type="button" onClick={() => setGuestCount(Math.max(1, guestCount - 1))} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors">-</button>
+                <span className="font-headline text-xl px-4">{guestCount}</span>
+                <button type="button" onClick={() => setGuestCount(guestCount + 1)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors">+</button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 pt-4">
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="w-full py-4 rounded-full bg-gradient-to-r from-primary to-primary-dim text-white font-label text-xs uppercase tracking-[0.3em] font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50"
+              >
+                {isSubmitting ? "Güncelleniyor..." : "Cevabı Onayla"}
+              </button>
+              {hasResponded && (
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditing(false)}
+                  className="w-full py-3 rounded-full border border-outline-variant/20 font-label text-[10px] uppercase tracking-widest text-on-surface-variant hover:bg-white/40 transition-all"
+                >
+                  Vazgeç
+                </button>
+              )}
+            </div>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+};
+
 // Components
 const Greeting = ({ guestName }: { guestName: string }) => (
   <section className="relative h-screen w-full flex items-center justify-center hero-zoom" id="home">
@@ -278,6 +387,8 @@ function WeddingContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
   const [hasResponded, setHasResponded] = useState(false);
+  const [currentAttendance, setCurrentAttendance] = useState("coming");
+  const [currentGuestCount, setCurrentGuestCount] = useState(1);
   const fetchTriggered = useRef(false);
 
   useEffect(() => {
@@ -303,6 +414,15 @@ function WeddingContent() {
           setAccessDenied(false);
           const isRespondedInSheet = !!(data.status && data.status.trim() !== "");
           setHasResponded(isRespondedInSheet);
+          
+          if (isRespondedInSheet) {
+            // Match Turkish values from sheet if any, otherwise default
+            const statusLower = data.status.toLowerCase();
+            setCurrentAttendance(statusLower.includes("gel") && !statusLower.includes("gelemiyor") ? "coming" : "not-coming");
+            
+            // Extract count from message or extra field if supported, but for now we'll rely on what we sent
+            // Since we don't have a specific 'count' field return yet, we'll keep 1 or try to parse message
+          }
         } else {
           setAccessDenied(true);
         }
@@ -347,6 +467,9 @@ function WeddingContent() {
       });
       
       setShowRSVP(false);
+      setHasResponded(true);
+      setCurrentAttendance(attendance);
+      setCurrentGuestCount(count);
       localStorage.setItem("rsvp_final_status_v3", "true");
       alert("Cevabınız kaydedildi. Teşekkürler!");
     } catch (error) {
@@ -383,6 +506,13 @@ function WeddingContent() {
     <>
       <Countdown />
       <Greeting guestName={guestName} />
+      <RSVPSection 
+        hasResponded={hasResponded}
+        onRSVPSubmit={handleRSVPSubmit}
+        isSubmitting={isSubmitting}
+        initialAttendance={currentAttendance}
+        initialCount={currentGuestCount}
+      />
       <RSVPPopup 
         isOpen={showRSVP} 
         onClose={handleRSVPClose} 
