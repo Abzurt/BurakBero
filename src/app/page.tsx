@@ -256,7 +256,7 @@ const EventInfo = () => (
               <p className="font-headline text-xl">Sarıyer Fuat Paşa Yalısı</p>
               <p className="text-on-surface-variant mb-4">Büyükdere, Çayırbaşı Cd. No:148, 34453 Sarıyer/İstanbul</p>
               <a 
-                href="https://maps.app.goo.gl/9TzYAnU87pQ2W5uE9" 
+                href="https://www.google.com/maps/dir/40.983499,29.089455/FUAT+PA%C5%9EA+OTEL%C4%B0,+B%C3%BCy%C3%BCkdere,+%C3%87ay%C4%B1rba%C5%9F%C4%B1+Cd.+No:148,+34453+Sarıyer%2F%C4%B0stanbul/@41.0714706,28.9717616,12z/data=!3m1!4b1!4m9!4m8!1m1!4e1!1m5!1m1!1s0x409fe0000369ca39:0xb5cfb8fe064a8168!2m2!1d29.045616!2d41.161199?entry=ttu&g_ep=EgoyMDI2MDMxNy4wIKXMDSoASAFQAw%3D%3D" 
                 target="_blank"
                 className="inline-flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-widest hover:gap-4 transition-all"
               >
