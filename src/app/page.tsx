@@ -273,7 +273,7 @@ function WeddingContent() {
   useEffect(() => {
     if (!isLoading && !accessDenied) {
       const forceShow = searchParams.get("force") === "true";
-      const hasRespondedLocal = localStorage.getItem("rsvp_final_responded") === "true";
+      const hasRespondedLocal = localStorage.getItem("rsvp_final_status_v3") === "true";
       
       if ((!hasRespondedLocal && !hasResponded) || forceShow) {
         const timer = setTimeout(() => {
@@ -300,7 +300,7 @@ function WeddingContent() {
       });
       
       setShowRSVP(false);
-      localStorage.setItem("rsvp_final_responded", "true");
+      localStorage.setItem("rsvp_final_status_v3", "true");
       alert("Cevabınız kaydedildi. Teşekkürler!");
     } catch (error) {
       console.error("Submit error:", error);
@@ -312,7 +312,6 @@ function WeddingContent() {
 
   const handleRSVPClose = () => {
     setShowRSVP(false);
-    localStorage.setItem("rsvp_final_responded", "true");
   };
 
   if (isLoading) return <div className="h-screen flex items-center justify-center bg-surface font-headline text-xl italic">Yükleniyor...</div>;
