@@ -66,18 +66,19 @@ const RSVPSection = ({
   const [attendance, setAttendance] = useState(initialAttendance);
   const [guestCount, setGuestCount] = useState(initialCount);
 
-  // Sync state if initial values change
+  // Sync state if initial values change or hasResponded changes
   useEffect(() => {
-    if (!isEditing) {
-      setAttendance(initialAttendance);
-      setGuestCount(initialCount);
+    setAttendance(initialAttendance);
+    setGuestCount(initialCount);
+    // If parent says we have responded, exit editing mode automatically
+    if (hasResponded) {
+      setIsEditing(false);
     }
-  }, [initialAttendance, initialCount, isEditing]);
+  }, [initialAttendance, initialCount, hasResponded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await onRSVPSubmit(attendance, guestCount);
-    setIsEditing(false);
   };
 
   return (
@@ -93,7 +94,7 @@ const RSVPSection = ({
               }`}>
                 {attendance === "coming" ? "Geliyorum" : "Gelemiyorum"} • {guestCount} Kişi
               </div>
-              <p className="font-body text-on-surface-variant mb-6 italic text-sm">Cevabınız kaydedildi. Değişiklik yapmak isterseniz güncelleyebilirsiniz.</p>
+              <p className="font-body text-on-surface-variant mb-6 italic text-sm text-center">Cevabınız kaydedildi. Değişiklik yapmak isterseniz güncelleyebilirsiniz.</p>
               <button 
                 onClick={() => setIsEditing(true)}
                 className="text-primary font-label text-[10px] uppercase tracking-[0.2em] font-bold hover:gap-3 transition-all flex items-center gap-2"
@@ -416,12 +417,8 @@ function WeddingContent() {
           setHasResponded(isRespondedInSheet);
           
           if (isRespondedInSheet) {
-            // Match Turkish values from sheet if any, otherwise default
             const statusLower = data.status.toLowerCase();
             setCurrentAttendance(statusLower.includes("gel") && !statusLower.includes("gelemiyor") ? "coming" : "not-coming");
-            
-            // Extract count from message or extra field if supported, but for now we'll rely on what we sent
-            // Since we don't have a specific 'count' field return yet, we'll keep 1 or try to parse message
           }
         } else {
           setAccessDenied(true);
