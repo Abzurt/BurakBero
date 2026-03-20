@@ -4,6 +4,50 @@ import { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 
+// Reusable Compact Countdown Component
+const CompactCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const targetDate = new Date("2026-06-13T19:00:00").getTime();
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      if (distance < 0) {
+        clearInterval(timer);
+        return;
+      }
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        mins: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        secs: Math.floor((distance % (1000 * 60)) / 1000),
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <div className="flex gap-2 justify-center mb-6">
+      {[
+        { label: "Gün", value: timeLeft.days },
+        { label: "Saat", value: timeLeft.hours },
+        { label: "Dk", value: timeLeft.mins },
+        { label: "Sn", value: timeLeft.secs }
+      ].map((item, idx) => (
+        <div key={idx} className="flex flex-col items-center min-w-[50px] py-2 bg-primary/5 rounded-lg border border-primary/10">
+          <span className="font-headline text-lg text-primary leading-none">{item.value}</span>
+          <span className="text-[7px] uppercase tracking-widest text-primary/60 mt-1">{item.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // Components
 const Greeting = ({ guestName }: { guestName: string }) => (
   <section className="relative h-screen w-full flex items-center justify-center hero-zoom" id="home">
@@ -173,37 +217,40 @@ const RSVPPopup = ({
         >
           <span className="material-symbols-outlined">close</span>
         </button>
-        <div className="mb-10">
-          <h2 className="font-headline text-4xl mb-4 text-on-background">Katılıyor Musun?</h2>
-          <p className="font-body text-on-surface-variant">Lütfen katılım durumunu 1 Mayıs'a kadar bildir.</p>
+        <div className="mb-6">
+          <h2 className="font-headline text-3xl md:text-4xl mb-4 text-on-background">Geri Sayım Başladı! 🥂</h2>
+          <CompactCountdown />
+          <p className="font-body text-sm md:text-base text-on-surface-variant leading-relaxed">
+            13 Haziran 2026 tarihindeki düğünümüzde seni de aramızda görecek miyiz? Geleceksen yerini hemen ayıralım!
+          </p>
         </div>
-        <form className="space-y-8 text-left" onSubmit={(e) => { e.preventDefault(); onSubmit(attendance, guestCount); }}>
+        <form className="space-y-6 text-left" onSubmit={(e) => { e.preventDefault(); onSubmit(attendance, guestCount); }}>
           <div className="flex gap-4">
             <label className="flex-1 cursor-pointer group">
               <input type="radio" name="attendance" value="coming" className="hidden peer" checked={attendance === "coming"} onChange={() => setAttendance("coming")} />
-              <div className="text-center p-6 rounded-2xl border border-outline-variant/20 peer-checked:bg-primary-container peer-checked:border-primary transition-all duration-300 glass hover:bg-white/40">
+              <div className="text-center p-4 md:p-6 rounded-2xl border border-outline-variant/20 peer-checked:bg-primary-container peer-checked:border-primary transition-all duration-300 glass hover:bg-white/40">
                 <span className="font-label text-[10px] uppercase tracking-widest">Geliyorum</span>
               </div>
             </label>
             <label className="flex-1 cursor-pointer group">
               <input type="radio" name="attendance" value="not-coming" className="hidden peer" checked={attendance === "not-coming"} onChange={() => setAttendance("not-coming")} />
-              <div className="text-center p-6 rounded-2xl border border-outline-variant/20 peer-checked:bg-surface-container-low transition-all duration-300 glass hover:bg-white/40">
-                <span className="font-label text-[10px] uppercase tracking-widest tracking-tighter">Gelemiyorum</span>
+              <div className="text-center p-4 md:p-6 rounded-2xl border border-outline-variant/20 peer-checked:bg-surface-container-low transition-all duration-300 glass hover:bg-white/40">
+                <span className="font-label text-[10px] uppercase tracking-widest">Gelemiyorum</span>
               </div>
             </label>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             <label className="font-label text-[10px] uppercase tracking-widest text-outline-variant ml-1">Kişi Sayısı</label>
             <div className="flex items-center justify-between glass py-2 px-2 rounded-full border border-outline-variant/10">
-              <button type="button" onClick={() => setGuestCount(Math.max(1, guestCount - 1))} className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors">-</button>
-              <span className="font-headline text-2xl px-8">{guestCount}</span>
-              <button type="button" onClick={() => setGuestCount(guestCount + 1)} className="w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors">+</button>
+              <button type="button" onClick={() => setGuestCount(Math.max(1, guestCount - 1))} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors">-</button>
+              <span className="font-headline text-xl px-4">{guestCount}</span>
+              <button type="button" onClick={() => setGuestCount(guestCount + 1)} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors">+</button>
             </div>
           </div>
           <button 
             type="submit" 
             disabled={isSubmitting}
-            className="w-full py-5 rounded-full bg-gradient-to-r from-primary to-primary-dim text-white font-label text-xs uppercase tracking-[0.3em] font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-4 rounded-full bg-gradient-to-r from-primary to-primary-dim text-white font-label text-xs uppercase tracking-[0.3em] font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Gönderiliyor..." : "Cevabı Gönder"}
           </button>
