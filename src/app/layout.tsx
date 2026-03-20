@@ -13,8 +13,14 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "E & J | Wedding Invitation",
-  description: "Join us for our special day.",
+  title: "Berin & Burak | Düğün Davetiyesi",
+  description: "13 Haziran 2026 tarihindeki düğünümüze davetlisiniz.",
+  openGraph: {
+    title: "Berin & Burak | Evleniyoruz!",
+    description: "Hayatımızın en özel gününde sizi de aramızda görmekten mutluluk duyarız.",
+    images: [{ url: "/wedding-hero.jpg" }],
+    type: "website",
+  },
 };
 
 export default function RootLayout({
